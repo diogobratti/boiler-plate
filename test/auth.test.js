@@ -5,6 +5,7 @@ const {
   Axios,
   login,
   authenticatedGet,
+  publicPost,
   authenticatedPostRefreshToken,
   authenticatedPostAccessToken,
 } = require("./Axios");
@@ -83,4 +84,45 @@ test("passwordChange ", async () => {
   expect(passwordChange.data.message).not.toBeUndefined();
   expect(passwordChange.data.message).not.toBeNull();
   expect(passwordChange.data.message).toBe(i18n.PASSWORD_CHANGED);
+  const rollbackToken = await tokens.passwordChange.create(user);
+  const rollbackBody = {
+    password: config.PASSWORD_TEST,
+    token: rollbackToken,
+  };
+  const rollbackPassword = await authenticatedPostRefreshToken(
+    "auth/passwordChange",
+    rollbackBody,
+    config.USERNAME_TEST,
+    config.NEW_PASSWORD_TEST
+  );
+  expect(rollbackPassword).not.toBeNull();
+  expect(rollbackPassword).not.toBeUndefined();
+  expect(rollbackPassword.data).not.toBeNull();
+  expect(rollbackPassword.data).not.toBeUndefined();
+  expect(rollbackPassword.data.message).not.toBeUndefined();
+  expect(rollbackPassword.data.message).not.toBeNull();
+  expect(rollbackPassword.data.message).toBe(i18n.PASSWORD_CHANGED);
 });
+
+test("refreshToken ", async () => {
+  jest.setTimeout(30000);
+  const authorization = await login(config.USERNAME_TEST,config.PASSWORD_TEST);
+  const body = { 
+    username: config.USERNAME_TEST,
+    password: config.PASSWORD_TEST, 
+    refreshToken: authorization.data.refreshToken 
+  };
+  const response = await Axios.post( "auth/refreshToken", body);
+  expect(response).not.toBeNull();
+  expect(response).not.toBeUndefined();
+  expect(response.data).not.toBeNull();
+  expect(response.data).not.toBeUndefined();
+  expect(response.data.accessToken).not.toBeNull();
+  expect(response.data.accessToken).not.toBeUndefined();
+  expect(response.data.refreshToken).not.toBeNull();
+  expect(response.data.refreshToken).not.toBeUndefined();
+  expect(response.data.user).not.toBeNull();
+  expect(response.data.user).not.toBeUndefined();
+});
+
+//TODO: verifyEmail Test

@@ -118,7 +118,11 @@ This is an example of how to list things you need to use the software and how to
   ```sh
   npm install npm@latest -g
   ```
-
+* bcrypt requires:
+  ```sh
+    sudo apt-get install g++
+    sudo apt-get install -y build-essential python
+  ```
 ### Installation
 
 1. Clone the repo
