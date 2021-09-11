@@ -14,6 +14,9 @@ module.exports = {
       description: {
         type: Sequelize.TEXT
       },
+      ingredients: {
+        type: Sequelize.TEXT
+      },
       purchasePrice: {
         type: Sequelize.FLOAT
       },
@@ -75,6 +78,7 @@ module.exports = {
     await queryInterface.bulkInsert('Products', [{
       name: 'Burrito',
       description: 'Carne de gado',
+      ingredients: 'Tortilha, Carne de gado e salada',
       purchasePrice: 100.00,
       salePrice: 200.00,
       promotionalSalePrice: 150.00,
@@ -88,6 +92,7 @@ module.exports = {
     },{
       name: 'Taco',
       description: 'Carne de frango',
+      ingredients: 'Tortilha, Carne de gado e salada',
       purchasePrice: 110.00,
       salePrice: 210.00,
       promotionalSalePrice: 110.00,
@@ -101,6 +106,7 @@ module.exports = {
     },{
       name: 'X-salada',
       description: 'Completo',
+      ingredients: 'Pão, hamburger, queijo, presunto, alface, tomate e cebola',
       purchasePrice: 100.00,
       salePrice: 200.00,
       promotionalSalePrice: 150.00,
