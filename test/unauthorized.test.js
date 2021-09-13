@@ -49,6 +49,12 @@ const getMethodTests = [
   {
     url: "/productGroup/listWithProductByProvider/2",
   },
+  {
+    url: "/product/listByIds/1,2,3,4",
+  },
+  {
+    url: "/product/listByIds/1",
+  },
 ];
 getMethodTests.forEach((element) => {
   test("Testing GET : " + config.PUBLIC_PATH + element.url, async () => {

@@ -35,6 +35,9 @@ module.exports = (app) => {
         "/product/listByParam/:param/:paramValue/numberOfRows/:numberOfRows/lastItemId/:lastItemId"
     )
     .get(controllers.product.listByParam);
+    app
+      .route(public_path + "/product/listByIds/:productIds")
+      .get(controllers.product.listByIds);
   app
     .route(public_path + "/product/listByProvider/:providerId")
     .get(controllers.product.listByProvider);
