@@ -28,9 +28,9 @@
     "dialect": "mysql"
   },
   "production": {
-    "username": "root",
-    "password": null,
-    "database": "database_production",
+    "username": "sequelize",
+    "password": "Secret#123456",
+    "database": "sequelize",
     "host": "127.0.0.1",
     "dialect": "mysql"
   }
