@@ -27,8 +27,7 @@ if (process.env.NODE_ENV == "production") {
     ca: ca,
   };
 
-  // Starting both http & https servers
-  const httpServer = http.createServer(app);
+  // Starting https server
   const httpsServer = https.createServer(credentials, app);
   httpsServer.listen(port, () => {
     console.log(`HTTPS Server running on port ${port}`);
