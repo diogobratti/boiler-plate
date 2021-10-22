@@ -6,6 +6,7 @@ const basename = path.basename(__filename);
 const database = require("./../models");
 const { Op } = require("sequelize");
 const controllers = {};
+const { InvalidArgumentError, InternalServerError } = require("../error/error");
 
 fs.readdirSync(__dirname)
   .filter((file) => {
@@ -37,6 +38,10 @@ fs.readdirSync(__dirname + "/../models")
     const nonStandardColumns = columns.filter(
       (column) => !standardColumns.includes(column)
     );
+    const standardColumnsWithMyUserId = [...standardColumns, "UserId"];
+    const nonStandardColumnsWithMyUserId = columns.filter(
+      (column) => !standardColumnsWithMyUserId.includes(column)
+    );
 
     const controller = {
       add: async (req, res) => {
@@ -47,6 +52,32 @@ fs.readdirSync(__dirname + "/../models")
               item[column] = req.body[column];
             }
           }
+          await database[Model].create(item);
+          res.status(201).json();
+        } catch (error) {
+          if (error instanceof InvalidArgumentError) {
+            res.status(422).json({ error: error.message });
+          } else if (error instanceof InternalServerError) {
+            res.status(500).json({ error: error.message });
+          } else {
+            res.status(500).json({ error: error.message });
+          }
+        }
+      },
+      /**
+       * Same as add, but logged user is used as UserId.
+       * @param {*} req
+       * @param {*} res
+       */
+      addWithMyUserId: async (req, res) => {
+        let item = {};
+        try {
+          for (const column of nonStandardColumnsWithMyUserId) {
+            if (req.body[column] !== undefined) {
+              item[column] = req.body[column];
+            }
+          }
+          item["UserId"] = req.user.id;
           await database[Model].create(item);
           res.status(201).json();
         } catch (error) {
@@ -81,6 +112,33 @@ fs.readdirSync(__dirname + "/../models")
         }
       },
 
+      /**
+       * Same as update, but logged user is used as UserId.
+       * @param {*} req
+       * @param {*} res
+       */
+      updateWithMyUserId: async (req, res) => {
+        try {
+          const item = await database[Model].findByPk(req.params.id);
+          for (const column of nonStandardColumnsWithMyUserId) {
+            if (req.body[column] !== undefined) {
+              item[column] = req.body[column];
+            }
+          }
+          item["UserId"] = req.user.id;
+          await item.save();
+          res.status(204).json();
+        } catch (error) {
+          if (error instanceof InvalidArgumentError) {
+            res.status(422).json({ error: error.message });
+          } else if (error instanceof InternalServerError) {
+            res.status(500).json({ error: error.message });
+          } else {
+            res.status(500).json({ error: error.message });
+          }
+        }
+      },
+
       findByPk: async (req, res) => {
         const item = await database[Model].findByPk(req.params.id);
         res.json(item);
@@ -88,6 +146,13 @@ fs.readdirSync(__dirname + "/../models")
 
       list: async (req, res) => {
         const items = await database[Model].findAll();
+        res.json(items);
+      },
+
+      listWithMyUserId: async (req, res) => {
+        const items = await database[Model].findAll({
+          where: { userId: req.user.id },
+        });
         res.json(items);
       },
 
@@ -108,7 +173,7 @@ fs.readdirSync(__dirname + "/../models")
        * @param paramValue
        * @param numberOfRows
        * @param lastItemId
-       * 
+       *
        * Example on GET "localhost:3333/public/product/listByParam/categoryId/3/numberOfRows/10/lastItemId/0"
        * It will return all products of category 3, paginated by 10 rows, starting at the beggining.
        */
@@ -125,11 +190,13 @@ fs.readdirSync(__dirname + "/../models")
             order: [["id", "ASC"]],
             limit: numberOfRows > 100 ? numberOfRows : 100,
           };
-          if(param.endsWith("Id")){
-            const paramModel = param.substring(0, 1).toLocaleUpperCase() + param.substring(1,param.length - 2);
+          if (param.endsWith("Id")) {
+            const paramModel =
+              param.substring(0, 1).toLocaleUpperCase() +
+              param.substring(1, param.length - 2);
             options["include"] = [database[paramModel]];
           }
-          console.log(options)
+          console.log(options);
           const items = await database[Model].findAll(options);
           res.json(items);
         } catch (error) {

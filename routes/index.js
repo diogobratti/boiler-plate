@@ -7,7 +7,7 @@ const routes = {};
 const controllers = require("../controllers");
 const { authentication, authorization } = require("../auth");
 
-const private_path = '/private';
+const private_path = "/private";
 
 module.exports = (app) => {
   const fileNames = fs.readdirSync(__dirname).filter((file) => {
@@ -59,13 +59,19 @@ module.exports = (app) => {
         .route(private_path + "/" + model)
         .post(adminAccess, controllers[model].add)
         .get(adminAccess, controllers[model].list);
+      app
+        .route(private_path + "/" + model + "/withMyUserId")
+        .post(adminOrMyAccess, controllers[model].addWithMyUserId)
+        .get(adminOrMyAccess, controllers[model].listWithMyUserId);
 
       app
         .route(private_path + "/" + model + "/:id")
         .delete(adminOrMyAccess, controllers[model].delete)
         .get(adminOrMyAccess, controllers[model].findByPk)
         .put(adminOrMyAccess, controllers[model].update);
+      app
+        .route(private_path + "/" + model + "/withMyUserId/:id")
+        .put(adminOrMyAccess, controllers[model].updateWithMyUserId);
     });
-
   return routes;
 };

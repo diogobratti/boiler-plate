@@ -35,7 +35,7 @@ module.exports = (entity, action) => (req, res, next) => {
     return;
   }
 
-  req.acesso = {
+  req.access = {
     // any: {
     //   granted: anyPermission.granted,
     //   attributes: anyPermission.attributes,

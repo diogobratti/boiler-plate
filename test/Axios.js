@@ -64,6 +64,37 @@ const authenticatedPostAccessToken = async (
   //   console.log(error);
   // }
 };
+const authenticatedPutAccessToken = async (
+  url,
+  params,
+  username = config.USERNAME_TEST,
+  password = config.PASSWORD_TEST
+) => {
+  // try {
+  const authorization = await login(username, password);
+  const headers = { Authorization: "Bearer " + authorization.data.accessToken };
+  return await Axios.put(url, params, {
+    headers: headers,
+  });
+  // } catch (error) {
+  //   console.log(error);
+  // }
+};
+const authenticatedDeleteAccessToken = async (
+  url,
+  username = config.USERNAME_TEST,
+  password = config.PASSWORD_TEST
+) => {
+  // try {
+  const authorization = await login(username, password);
+  const headers = { Authorization: "Bearer " + authorization.data.accessToken };
+  return await Axios.delete(url, {
+    headers: headers,
+  });
+  // } catch (error) {
+  //   console.log(error);
+  // }
+};
 const authenticatedPostRefreshToken = async (
   url,
   params,
@@ -86,6 +117,8 @@ module.exports = {
   publicPost: publicPost,
   login: login,
   authenticatedPostAccessToken: authenticatedPostAccessToken,
+  authenticatedPutAccessToken: authenticatedPutAccessToken,
+  authenticatedDeleteAccessToken: authenticatedDeleteAccessToken,
   authenticatedPostRefreshToken: authenticatedPostRefreshToken,
   authenticatedGet: authenticatedGet,
 };

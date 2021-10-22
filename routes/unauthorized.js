@@ -42,7 +42,7 @@ module.exports = (app) => {
     .route(public_path + "/product/listByProvider/:providerId")
     .get(controllers.product.listByProvider);
 
-  app
+    app
     .route(public_path + "/productGroup/listWithProductByProvider/:providerId")
     .get(controllers.productGroup.listWithProductByProvider);
 };
