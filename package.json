@@ -42,8 +42,8 @@
     "sqlite3": "^4.1.1"
   },
   "jest": {
-    "testPathIgnorePatterns" : [
-      "<rootDir>/test/auth.test.js" 
+    "testPathIgnorePatterns": [
+      "<rootDir>/test/auth.test.js"
     ]
   }
 }
