@@ -19,9 +19,9 @@ const methods = {
   },
 };
 module.exports = (entity, action) => (req, res, next) => {
-  console.log('req.user.dataValues.Role.name : ')
-  console.log(req.user.dataValues.Role.name);
-  const rolePermissions = control.can(req.user.dataValues.Role.name);
+  console.log('req.user.dataValues.Role.label : ')
+  console.log(req.user.dataValues.Role.label);
+  const rolePermissions = control.can(req.user.dataValues.Role.label);
   const actions = methods[action];
   const anyPermission = rolePermissions[actions.any](entity);
   const ownPermission = rolePermissions[actions.own](entity);

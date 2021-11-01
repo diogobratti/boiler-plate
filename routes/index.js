@@ -31,47 +31,24 @@ module.exports = (app) => {
     .forEach((file) => {
       const model = file.slice(0, -3);
 
-      let adminAccess = [
-        authentication.bearer,
-        // authorization.isGlobalAdmin,
-        // authorization.isGroupAdmin,
-        // authorization.isLocalAdmin,
-      ];
-      let adminOrMyAccess = [];
-      if (model === "user") {
-        adminOrMyAccess = [
-          authentication.bearer,
-          ...adminAccess,
-          // authorization.isMyUser,
-        ];
-      } else if (model === "address") {
-        adminOrMyAccess = [
-          authentication.bearer,
-          ...adminAccess,
-          // authorization.isMyAddress,
-        ];
-        adminAccess = [authentication.bearer];
-      } else {
-        adminOrMyAccess = [authentication.bearer, ...adminAccess];
-      }
 
       app
         .route(private_path + "/" + model)
-        .post(adminAccess, controllers[model].add)
-        .get(adminAccess, controllers[model].list);
+        .post([authentication.bearer, authorization(model,'create')], controllers[model].add)
+        .get([authentication.bearer, authorization(model,'read')], controllers[model].list);
       app
         .route(private_path + "/" + model + "/withMyUserId")
-        .post(adminOrMyAccess, controllers[model].addWithMyUserId)
-        .get(adminOrMyAccess, controllers[model].listWithMyUserId);
+        .post([authentication.bearer, authorization(model,'create')], controllers[model].addWithMyUserId)
+        .get([authentication.bearer, authorization(model,'read')], controllers[model].listWithMyUserId);
 
       app
         .route(private_path + "/" + model + "/:id")
-        .delete(adminOrMyAccess, controllers[model].delete)
-        .get(adminOrMyAccess, controllers[model].findByPk)
-        .put(adminOrMyAccess, controllers[model].update);
+        .delete([authentication.bearer, authorization(model,'remove')], controllers[model].delete)
+        .get([authentication.bearer, authorization(model,'read')], controllers[model].findByPk)
+        .put([authentication.bearer, authorization(model,'update')], controllers[model].update);
       app
         .route(private_path + "/" + model + "/withMyUserId/:id")
-        .put(adminOrMyAccess, controllers[model].updateWithMyUserId);
+        .put([authentication.bearer, authorization(model,'update')], controllers[model].updateWithMyUserId);
     });
   return routes;
 };
