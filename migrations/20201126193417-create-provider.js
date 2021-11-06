@@ -60,7 +60,7 @@ module.exports = {
     });
     await queryInterface.bulkInsert("Providers", [
       {
-        name: "Lanchonete da Esquina",
+        name: "Lanchonete da Esquina do Vendedor",
         agent: "Machado de Assis",
         phone: "48 98765-4321",
         email: "email@email.com",
@@ -71,7 +71,7 @@ module.exports = {
         updatedAt: new Date(),
       },
       {
-        name: "Lanchonete da Outra Esquina",
+        name: "Lanchonete da Outra Esquina do Admin",
         agent: "Monteiro Lobato",
         phone: "48 98765-4321",
         email: "email@email.com",
@@ -82,7 +82,7 @@ module.exports = {
         updatedAt: new Date(),
       },
       {
-        name: "Loja da Avenida",
+        name: "Loja da Avenida do Admin",
         agent: "Saci Perere",
         phone: "48 98765-4321",
         email: "email@email.com",

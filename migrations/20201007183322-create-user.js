@@ -95,6 +95,32 @@ module.exports = {
       updatedAt: new Date(),
       termsAccepted: new Date(),
       allowExtraEmails: true
+    },{
+      name: 'Vendedor Teste',
+      email: 'lojasbemutil@gmail.com',
+      username: 'vendedor',
+      phone: '(48) 99951-8667',
+      password: hashedPassword,
+      roleId: 2,
+      emailVerified: true,
+      phoneVerified: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      termsAccepted: new Date(),
+      allowExtraEmails: true
+    },{
+      name: 'Cliente Teste',
+      email: 'dbratti.vendas@gmail.com',
+      username: 'cliente',
+      phone: '(48) 99951-8667',
+      password: hashedPassword,
+      roleId: 3,
+      emailVerified: true,
+      phoneVerified: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      termsAccepted: new Date(),
+      allowExtraEmails: true
     }]);
   },
   down: async (queryInterface, Sequelize) => {

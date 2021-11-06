@@ -14,6 +14,8 @@ module.exports = (sequelize, DataTypes) => {
       models.Provider.hasMany(models.Product);
       models.Provider.belongsTo(models.Category);
       models.Provider.belongsTo(models.City);
+      models.Provider.belongsToMany(models.User, { through: models.Provider_User});
+      models.Provider.hasMany(models.Provider_User);
     }
   };
   Provider.init({

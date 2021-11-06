@@ -18,6 +18,8 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
       models.User.belongsTo(models.Role);
       models.User.hasMany(models.Address);
+      models.User.belongsToMany(models.Provider, { through: models.Provider_User});
+      models.User.hasMany(models.Provider_User);
       models.User.hasMany(models.Error);
       models.User.hasMany(models.Cart);
     }

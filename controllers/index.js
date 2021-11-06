@@ -32,7 +32,7 @@ fs.readdirSync(__dirname + "/../models")
   })
   .forEach((file) => {
     const model = file.slice(0, -3);
-    const Model = model.charAt(0).toUpperCase() + model.slice(1);
+    const Model = model.split("_").map(value => value.charAt(0).toUpperCase() + value.slice(1)).join("_");;
 
     const columns = Object.keys(database[Model].rawAttributes);
     const nonStandardColumns = columns.filter(
