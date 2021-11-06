@@ -140,7 +140,7 @@ This is an example of how to list things you need to use the software and how to
    ```sh
    sudo apt-get install redis-server
    ```
-4. Create MySQL database and credentials, for more details access [https://github.com/diogobratti/boiler-plate/blob/master/config/sequelize.json](https://github.com/diogobratti/boiler-plate/blob/master/config/sequelize.json)
+4. Create MySQL database and credentials, for more details access [https://github.com/diogobratti/boiler-plate/blob/master/config/sequelize.js](https://github.com/diogobratti/boiler-plate/blob/master/config/sequelize.js)
 5. Create .env file
    ```sh
    cp .env.example .env
