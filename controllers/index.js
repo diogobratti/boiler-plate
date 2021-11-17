@@ -32,7 +32,10 @@ fs.readdirSync(__dirname + "/../models")
   })
   .forEach((file) => {
     const model = file.slice(0, -3);
-    const Model = model.split("_").map(value => value.charAt(0).toUpperCase() + value.slice(1)).join("_");;
+    const Model = model
+      .split("_")
+      .map((value) => value.charAt(0).toUpperCase() + value.slice(1))
+      .join("_");
 
     const columns = Object.keys(database[Model].rawAttributes);
     const nonStandardColumns = columns.filter(
@@ -42,7 +45,22 @@ fs.readdirSync(__dirname + "/../models")
     const nonStandardColumnsWithMyUserId = columns.filter(
       (column) => !standardColumnsWithMyUserId.includes(column)
     );
-
+    controllers[model] = {
+      addAuthorizationCheck: (item, access, userId) => false,
+      addWithMyUserAuthorizationCheck: (item, access, userId) => false,
+      updateAuthorizationCheck: (item, access, userId) => false,
+      updateWithMyUserIdAuthorizationCheck: (item, access, userId) => false,
+      findByPkAuthorizationCheck: (item, access, userId) => false,
+      //return false or items that can be listed
+      listAuthorizationCheck: (items, access, userId) => false,
+      //return false or items that can be listed
+      listWithMyUserIdAuthorizationCheck: (items, access, userId) => false,
+      deleteAuthorizationCheck: (item, access, userId) => false,
+      //return false or items that can be listed
+      listByParamAuthorizationCheck: (items, access, userId) => false,
+      ...controllers[model],
+    };
+    //TODO: verificar se os dados sao do dono (auth accesscontrol) https://github.com/onury/accesscontrol/issues/14#issuecomment-328316670
     const controller = {
       add: async (req, res) => {
         let item = {};
@@ -52,8 +70,24 @@ fs.readdirSync(__dirname + "/../models")
               item[column] = req.body[column];
             }
           }
-          await database[Model].create(item);
-          res.status(201).json();
+          const userId =
+            req.user !== undefined ? req.user.dataValues.id : undefined;
+          const anyAccess =
+            req.access !== undefined ? req.access.any.granted : false;
+          let authorized = anyAccess
+            ? item
+            : controllers[model].addAuthorizationCheck(
+                item,
+                req.access,
+                userId
+              );
+          if (!anyAccess && authorized === false) {
+            res.status(403);
+            res.end();
+            return;
+          }
+          const newItem = await database[Model].create(item);
+          res.status(201).json(newItem);
         } catch (error) {
           if (error instanceof InvalidArgumentError) {
             res.status(422).json({ error: error.message });
@@ -77,9 +111,25 @@ fs.readdirSync(__dirname + "/../models")
               item[column] = req.body[column];
             }
           }
-          item["UserId"] = req.user.id;
-          await database[Model].create(item);
-          res.status(201).json();
+          const userId =
+            req.user !== undefined ? req.user.dataValues.id : undefined;
+          item["UserId"] = userId;
+          const anyAccess =
+            req.access !== undefined ? req.access.any.granted : false;
+          let authorized = anyAccess
+            ? item
+            : controllers[model].addWithMyUserAuthorizationCheck(
+                item,
+                req.access,
+                userId
+              );
+          if (!anyAccess && authorized === false) {
+            res.status(403);
+            res.end();
+            return;
+          }
+          const newItem = await database[Model].create(item);
+          res.status(201).json(newItem);
         } catch (error) {
           if (error instanceof InvalidArgumentError) {
             res.status(422).json({ error: error.message });
@@ -94,6 +144,22 @@ fs.readdirSync(__dirname + "/../models")
       update: async (req, res) => {
         try {
           const item = await database[Model].findByPk(req.params.id);
+          const userId =
+            req.user !== undefined ? req.user.dataValues.id : undefined;
+          const anyAccess =
+            req.access !== undefined ? req.access.any.granted : false;
+          let authorized = anyAccess
+            ? item
+            : controllers[model].updateAuthorizationCheck(
+                item,
+                req.access,
+                userId
+              );
+          if (!anyAccess && authorized === false) {
+            res.status(403);
+            res.end();
+            return;
+          }
           for (const column of nonStandardColumns) {
             if (req.body[column] !== undefined) {
               item[column] = req.body[column];
@@ -120,12 +186,28 @@ fs.readdirSync(__dirname + "/../models")
       updateWithMyUserId: async (req, res) => {
         try {
           const item = await database[Model].findByPk(req.params.id);
+          const userId =
+            req.user !== undefined ? req.user.dataValues.id : undefined;
+          const anyAccess =
+            req.access !== undefined ? req.access.any.granted : false;
+          let authorized = anyAccess
+            ? item
+            : controllers[model].updateWithMyUserIdAuthorizationCheck(
+                item,
+                req.access,
+                userId
+              );
+          if (!anyAccess && authorized === false) {
+            res.status(403);
+            res.end();
+            return;
+          }
           for (const column of nonStandardColumnsWithMyUserId) {
             if (req.body[column] !== undefined) {
               item[column] = req.body[column];
             }
           }
-          item["UserId"] = req.user.id;
+          item["UserId"] = userId;
           await item.save();
           res.status(204).json();
         } catch (error) {
@@ -141,23 +223,87 @@ fs.readdirSync(__dirname + "/../models")
 
       findByPk: async (req, res) => {
         const item = await database[Model].findByPk(req.params.id);
+        const userId =
+          req.user !== undefined ? req.user.dataValues.id : undefined;
+        const anyAccess =
+          req.access !== undefined ? req.access.any.granted : false;
+        let authorized = anyAccess
+          ? item
+          : controllers[model].findByPkAuthorizationCheck(
+              item,
+              req.access,
+              userId
+            );
+        if (!anyAccess && authorized === false) {
+          res.status(403);
+          res.end();
+          return;
+        }
         res.json(item);
       },
 
       list: async (req, res) => {
         const items = await database[Model].findAll();
-        res.json(items);
+        const userId =
+          req.user !== undefined ? req.user.dataValues.id : undefined;
+        const anyAccess =
+          req.access !== undefined ? req.access.any.granted : false;
+        let authorized = anyAccess
+          ? items
+          : controllers[model].listAuthorizationCheck(
+              items,
+              req.access,
+              userId
+            );
+        if (!anyAccess && authorized === false) {
+          res.status(403);
+          res.end();
+          return;
+        }
+        res.json(authorized);
       },
 
       listWithMyUserId: async (req, res) => {
         const items = await database[Model].findAll({
           where: { userId: req.user.id },
         });
-        res.json(items);
+        const userId =
+          req.user !== undefined ? req.user.dataValues.id : undefined;
+        const anyAccess =
+          req.access !== undefined ? req.access.any.granted : false;
+        let authorized = anyAccess
+          ? items
+          : controllers[model].listWithMyUserIdAuthorizationCheck(
+              items,
+              req.access,
+              userId
+            );
+        if (!anyAccess && authorized === false) {
+          res.status(403);
+          res.end();
+          return;
+        }
+        res.json(authorized);
       },
 
       delete: async (req, res) => {
         const item = await database[Model].findByPk(req.params.id);
+        const userId =
+          req.user !== undefined ? req.user.dataValues.id : undefined;
+        const anyAccess =
+          req.access !== undefined ? req.access.any.granted : false;
+        let authorized = anyAccess
+          ? item
+          : controllers[model].deleteAuthorizationCheck(
+              item,
+              req.access,
+              userId
+            );
+        if (!anyAccess && authorized === false) {
+          res.status(403);
+          res.end();
+          return;
+        }
         try {
           await item.destroy(item);
           res.status(200).send();
@@ -196,9 +342,24 @@ fs.readdirSync(__dirname + "/../models")
               param.substring(1, param.length - 2);
             options["include"] = [database[paramModel]];
           }
-          console.log(options);
           const items = await database[Model].findAll(options);
-          res.json(items);
+          const userId =
+            req.user !== undefined ? req.user.dataValues.id : undefined;
+          const anyAccess =
+            req.access !== undefined ? req.access.any.granted : false;
+          let authorized = anyAccess
+            ? items
+            : controllers[model].listByParamAuthorizationCheck(
+                items,
+                req.access,
+                userId
+              );
+          if (!anyAccess && authorized === false) {
+            res.status(403);
+            res.end();
+            return;
+          }
+          res.json(authorized);
         } catch (error) {
           console.log(error);
           res.status(500).json({ error: error });

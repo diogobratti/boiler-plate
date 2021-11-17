@@ -19,17 +19,13 @@ const methods = {
   },
 };
 module.exports = (entity, action) => (req, res, next) => {
-  console.log('req.user.dataValues.Role.label : ')
-  console.log(req.user.dataValues.Role.label);
-  const rolePermissions = control.can(req.user.dataValues.Role.label);
+  const role = (req.user !== undefined ? req.user.dataValues.Role.label : "anybody");
+  const rolePermissions = control.can(role);
   const actions = methods[action];
   const anyPermission = rolePermissions[actions.any](entity);
   const ownPermission = rolePermissions[actions.own](entity);
 
-  if (
-    anyPermission.granted === false &&
-    ownPermission.granted === false
-  ) {
+  if (anyPermission.granted === false && ownPermission.granted === false) {
     res.status(403);
     res.end();
     return;

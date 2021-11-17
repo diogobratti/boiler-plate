@@ -2,10 +2,20 @@ const AccessControl = require("accesscontrol");
 const control = new AccessControl();
 
 control
-  .grant("client")
+  .grant("anybody")
   .readAny("product")
+  .readAny("productGroup")
   .readAny("provider")
   .readAny("category")
+  .readAny("city")
+  .readAny("state")
+  .readAny("country")
+  .createOwn("user")
+  .createOwn("address")
+  .readAny("role");
+control
+  .grant("client")
+  .extend("anybody")
   .readOwn("order")
   .createOwn("order")
   .updateOwn("order")
