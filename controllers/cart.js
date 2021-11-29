@@ -55,7 +55,7 @@ module.exports = {
       const anyAccess =
         req.access !== undefined ? req.access.any.granted : false;
       let authorized = anyAccess
-        ? item
+        ? items
         : authorization.deleteAuthorizationCheck(
             items,
             req.access,
