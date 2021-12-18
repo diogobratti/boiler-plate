@@ -50,7 +50,20 @@ passport.use(
     async (username, password, done) => {
       try {
         const user = await model.User.findOne({
-          include: [ model.Role, model.Address ],
+          include: [
+            model.Role,
+            {
+              model: model.Address,
+              include: [
+                {
+                  model: model.City,
+                  include: [
+                    { model: model.State, include: [{ model: model.Country }] },
+                  ],
+                },
+              ],
+            },
+          ],
           // attributes : [ 'id', 'name', 'email', 'username', 'password', 'RoleId' ],
           where: { username: username },
         });
@@ -69,7 +82,7 @@ passport.use(
     try {
       const id = await tokens.access.verify(token);
       const user = await model.User.findByPk(id, {
-        include: [ model.Role, model.Address ],
+        include: [model.Role, model.Address],
       });
       done(null, user, { token: token });
     } catch (error) {
